@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.demo.Entity.Citizen;
 import com.example.demo.Entity.Vaccination;
+import com.example.demo.ServiceImpl.*;
 import com.example.demo.ServiceImpl.VaccinationServiceImpl;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @RestController
 @RequestMapping("/ap1/v1")
@@ -25,11 +29,13 @@ public class VaccinationController {
 	@Autowired
 	VaccinationServiceImpl servImpl;
 	
+	 @Autowired
+	    private CitizenService citizenService;
+	
 	@GetMapping("/getAll")
 	
 	public ResponseEntity<List<Vaccination>> getAllCenters() {
 	
-		System.out.println("herer");
 		List <Vaccination> vaccList = servImpl.getAll();
 		
 		return new ResponseEntity(vaccList , HttpStatus.OK);
@@ -62,4 +68,23 @@ public class VaccinationController {
 		servImpl.deleteCitizen(cz.get());
 		return new ResponseEntity<Void>(HttpStatus.ACCEPTED);
 	}
+	
+	// using Feign Client
+	
+	    @GetMapping("/citizenDetails")
+	    public ResponseEntity<List<Citizen>> getAllCitizens() { 	
+			List<Citizen> citizens = citizenService.getAllCitizen();
+			return new ResponseEntity(citizens , HttpStatus.OK);
+			
+	    }
+	    
+			// for Load Balancing 	
+			 @GetMapping("/getPorts")
+			    public String getPort() { 	
+				String PortDetails = citizenService.getPorts();
+					return PortDetails;
+			
+		}
+			 
+			
 }
